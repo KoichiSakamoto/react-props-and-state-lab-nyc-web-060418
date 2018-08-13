@@ -15,6 +15,46 @@ class App extends React.Component {
     }
   }
 
+  onChangeType = (e) => {
+    this.setState({
+      ...this.state,
+      filters: {
+        type: e.target.value
+      }})
+  }
+
+  onFindPetsClick = () => {
+    if (this.state.filters.type === 'all') {
+      fetch('/api/pets').then(res => res.json()).then(json => this.setState({
+        ...this.state,
+        pets: json
+      }))
+    }
+    else {
+      fetch('/api/pets?type=' + this.state.filters.type).then(res => res.json()).then(json => this.setState({
+        ...this.state,
+        pets: json
+      }))
+    }
+  }
+
+  checkState = () => {
+    console.log(this.state)
+  }
+
+  onAdoptPet = (id) => {
+    let newArray = [...this.state.pets]
+    for (let pets in newArray) {
+      if (newArray[pets].id === id) {
+        newArray[pets].isAdopted = true
+      }
+    }
+    this.setState({
+      ...this.state,
+      pets: newArray
+    })
+  }
+
   render() {
     return (
       <div className="ui container">
@@ -24,11 +64,12 @@ class App extends React.Component {
         <div className="ui container">
           <div className="ui grid">
             <div className="four wide column">
-              <Filters />
+              <Filters onChangeType={this.onChangeType} onFindPetsClick={this.onFindPetsClick}/>
             </div>
             <div className="twelve wide column">
-              <PetBrowser />
+              <PetBrowser pets={this.state.pets} onAdoptPet={this.onAdoptPet}/>
             </div>
+            <button onClick={this.checkState}> Check State </button>
           </div>
         </div>
       </div>
